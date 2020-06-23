@@ -1,0 +1,32 @@
+#!/usr/bin/ruby
+
+sat, *lines = ARGF.readlines
+
+a = nil
+case sat
+when /^sat/
+  a = lines.join.scan(/\(\s*\w\d+a
+\s+\d+\s*\)/).sort.map {|s| s =~ /\s(\d+)/ ? $1 : nil }.compact
+when /^SAT/
+  a = lines.join.split.delete_if {|s| s.to_i < 0 }.map {|s| s[-1] }
+else
+  a = (sat + lines.join).split.map {|s| s =~ /\d+/ ? s : "" }
+end
+
+puts <<EOS
+<!DOCTYPE html>
+<style>
+table { border-collapse: collapse; border: solid; margin: 2em; }
+td { border: solid 1px; width: 1.5em; height: 1.5em;
+     font-size: xx-large; text-align: center; }
+td.false { background: #fdd; }
+td:nth-child(3), td:nth-child(6) { border-right:  solid 3px; }
+tr:nth-child(3), tr:nth-child(6) { border-bottom: solid 3px; }
+</style>
+<table>
+#{
+(0 ... 81).map {|i|
+  (i % 9 == 0 ? "<tr>" : "") + "<td>#{a[i]}" + (i % 9 == 8 ? "</tr>\n" : "")
+}.join
+}</table>
+EOS
